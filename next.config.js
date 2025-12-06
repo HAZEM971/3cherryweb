@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export", // 🔥 هذا يجعل Next.js ينتج مجلد out تلقائيًا
   images: {
     unoptimized: true,
   },
+
+  // 🔥 مهم جداً: تعطيل التصدير الستاتيكي
+  output: undefined,
 };
 
 module.exports = nextConfig;

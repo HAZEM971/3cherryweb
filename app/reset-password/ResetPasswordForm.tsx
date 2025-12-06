@@ -3,22 +3,29 @@
 import { useState } from "react";
 import { confirmPasswordReset } from "firebase/auth";
 import { auth } from "../../lib/firebase";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-export default function ResetPasswordForm() {
-  const search = useSearchParams();
+interface ResetPasswordFormProps {
+  oobCode: string | null;
+}
+
+export default function ResetPasswordForm({ oobCode }: ResetPasswordFormProps) {
   const router = useRouter();
 
-  const oobCode = search.get("oobCode");
-
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [msg, setMsg] = useState("");
+  const [password, setPassword] = useState<string>("");
+  const [confirm, setConfirm] = useState<string>("");
+  const [msg, setMsg] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   const handleReset = async () => {
     setMsg("");
     setStatus("idle");
+
+    if (!oobCode) {
+      setMsg("❌ Invalid or expired link.");
+      setStatus("error");
+      return;
+    }
 
     if (!password || !confirm) {
       setMsg("⚠ Please fill both fields.");
@@ -33,7 +40,7 @@ export default function ResetPasswordForm() {
     }
 
     try {
-      await confirmPasswordReset(auth, oobCode!, password);
+      await confirmPasswordReset(auth, oobCode, password);
       setStatus("success");
       setMsg("✅ Your password has been reset successfully.");
 
@@ -48,10 +55,9 @@ export default function ResetPasswordForm() {
 
   return (
     <main className="min-h-screen bg-black flex items-center justify-center p-4 relative text-white">
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-500/10 blur-[90px]"></div>
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-500/10 blur-[90px]" />
 
       <div className="relative z-10 w-full max-w-md bg-[#0B0B0B] border border-[#FFD70044] p-8 rounded-2xl shadow-xl">
-
         <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent">
           Create New Password
         </h1>
